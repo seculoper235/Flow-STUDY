@@ -25,7 +25,6 @@ jobs:
       with:
         java-version: '11'
         distribution: 'temurin'
-    - name: Build with Gradle
+    - name: Build JAR
       run: |
-        gradle ear
-      working-directory: build/libs/*.jar
+        gradle jar
