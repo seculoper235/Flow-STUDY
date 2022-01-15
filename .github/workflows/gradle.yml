@@ -5,7 +5,7 @@
 # This workflow will build a Java project with Gradle and cache/restore any dependencies to improve the workflow execution time
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
 
-name: Java CI with Gradle
+name: Staging Server
 
 on:
   push:
@@ -15,7 +15,6 @@ on:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -25,6 +24,16 @@ jobs:
       with:
         java-version: '17'
         distribution: 'temurin'
+
     - name: Build JAR
+      run: |
+        gradle jar
+
+  pull_request:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == 'true'
+
+    steps:
+    - name: Staging Deploy
       run: |
         gradle jar
