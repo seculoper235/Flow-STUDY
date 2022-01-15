@@ -5,7 +5,7 @@
 # This workflow will build a Java project with Gradle and cache/restore any dependencies to improve the workflow execution time
 # For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-gradle
 
-name: Staging Server
+name: Staging
 
 on:
   push:
@@ -15,7 +15,8 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  Integration:
+    name: Build & Integration(Dev)
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'pull_request' }}
 
@@ -31,7 +32,8 @@ jobs:
       run: |
         gradle jar
 
-  Deplyment:
+  Deployment:
+    name: Deployment(Dev)
     runs-on: ubuntu-latest
     if: ${{ github.event_name == 'push' }}
 
