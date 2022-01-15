@@ -27,5 +27,5 @@ jobs:
         distribution: 'temurin'
     - name: Build with Gradle
       run: |
-        gradle ear
+        gradle jar
       working-directory: build/libs/*.jar
