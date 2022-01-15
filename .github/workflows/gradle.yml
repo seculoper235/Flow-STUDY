@@ -17,7 +17,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'puul_request' }}
+    if: ${{ github.event_name == 'pull_request' }}
 
     steps:
     - uses: actions/checkout@v2
@@ -36,6 +36,13 @@ jobs:
     if: ${{ github.event_name == 'push' }}
 
     steps:
+    - uses: actions/checkout@v2
+    - name: Set up JDK 17
+      uses: actions/setup-java@v2
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
     - name: Staging Deploy
       run: |
         gradle jar
