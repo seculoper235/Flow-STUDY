@@ -60,7 +60,7 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_S3_KEY }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_S3_SECRET_KEY }}
       run: |
-        aws s3 cp ./build/libs/*.jar s3:secu-bucket/
+        aws s3 cp ./build/libs/*.jar s3://secu-bucket/ --region ap-northeast-2
           
     - name: Deploy # Deploy to EC2
       run: aws deploy create-deployment
