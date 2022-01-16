@@ -44,9 +44,13 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    - name: Build JAR
+    - name: Build
       run: |
-        gradle jar
+        gradle build
+        
+    - name: zip create
+      run: zip -qq -r ./SecuApp.zip
+      shell: bash
         
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -60,11 +64,11 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_S3_KEY }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_S3_SECRET_KEY }}
       run: |
-        aws s3 cp ./build/libs/*.jar s3://secu-bucket/ --region ap-northeast-2
+        aws s3 cp ./SecuApp.zip s3://secu-bucket/ --region ap-northeast-2
           
     - name: Deploy # Deploy to EC2
       run: aws deploy create-deployment
         --application-name SecuProject_DEV
         --deployment-config-name CodeDeployDefault.AllAtOnce
         --deployment-group-name Staging
-        --s3-location bucket=secu-bucket,key=./build/libs/*.jar, bundleType=jar
+        --s3-location bucket=secu-bucket,key=./SecuApp.zip, bundleType=zip
