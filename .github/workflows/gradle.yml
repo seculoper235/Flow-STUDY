@@ -67,8 +67,8 @@ jobs:
         aws s3 cp ./SecuApp.zip s3://secu-bucket/ --region ap-northeast-2
           
     - name: Deploy # Deploy to EC2
-      run: aws deploy create-deployment
-        --application-name SecuProject_DEV
-        --deployment-config-name CodeDeployDefault.AllAtOnce
-        --deployment-group-name Staging
-        --s3-location bucket=secu-bucket,key=./SecuApp.zip, bundleType=zip
+      run: aws deploy create-deployment \
+        --application-name SecuProject_DEV \
+        --deployment-config-name CodeDeployDefault.AllAtOnce \
+        --deployment-group-name Staging\
+        --s3-location bucket=secu-bucket, bundleType=zip, key=SecuApp.zip
