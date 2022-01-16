@@ -49,7 +49,7 @@ jobs:
         gradle build
         
     - name: zip create
-      run: zip -qq -r ./SecuApp.zip
+      run: zip ./build/libs/*.jar ./SecuApp.zip
       shell: bash
         
     - name: Configure AWS credentials
