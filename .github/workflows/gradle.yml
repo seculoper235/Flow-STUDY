@@ -84,7 +84,16 @@ jobs:
 
     - name: update deployment status
       uses: bobheadxi/deployments@v0.6.2
-      if: always()
+      if: failure()
+      with:
+        step: finish
+        token: ${{ secrets.GITHUB_TOKEN }}
+        status: ${{ job.status }}
+        deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+
+    - name: update deployment status
+      uses: bobheadxi/deployments@v0.6.2
+      if: success()
       with:
         step: finish
         token: ${{ secrets.GITHUB_TOKEN }}
