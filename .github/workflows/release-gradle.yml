@@ -10,14 +10,11 @@ name: Production
 on:
   push:
     branches: [ release/production ]
-  deployment:
-    branches: [ release/production ]
 
 jobs:
   Integration:
     name: Build & Integration(Prod)
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'push' }}
 
     steps:
     - uses: actions/checkout@v2
@@ -33,27 +30,52 @@ jobs:
   Deployment:
     name: Deployment(Prod)
     runs-on: ubuntu-latest
-    if: ${{ github.event_name == 'deployment' }}
 
     steps:
-      - name: Build JAR
+      - name: Build
         run: |
-          gradle jar
+          gradle build
 
-  deployment:
-    runs-on: ubuntu-latest
-    environment: release/production
-    concurrency: release/production
+      - name: zip create
+        run: zip ./SecuApp.zip ./*
+        shell: bash
 
-    steps:
-    - uses: actions/checkout@v2
-    - name: Set up JDK 17
-      uses: actions/setup-java@v2
-      with:
-        java-version: '17'
-        distribution: 'temurin'
+      - name: start deployment
+        uses: bobheadxi/deployments@v0.6.2
+        id: deployment
+        with:
+          step: start
+          token: ${{ secrets.GITHUB_TOKEN }}
+          env: Production
 
-    - name: Production Deploy
-      run: |
-        gradle jar
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_S3_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Upload S3
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_S3_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_S3_SECRET_KEY }}
+        run: |
+          aws s3 cp ./SecuApp.zip s3://secu-prodbucket/ --region ap-northeast-2
+
+      # Deploy to EC2
+      - name: Deploy(Production)
+        id: Production
+        run: aws deploy create-deployment --application-name SecuProject_PROD
+          --deployment-config-name CodeDeployDefault.AllAtOnce
+          --deployment-group-name Production
+          --s3-location "bucket"="secu-prodbucket","key"="SecuApp.zip","bundleType"="zip"
+
+      - name: update deployment status
+        uses: bobheadxi/deployments@v0.6.2
+        if: always()
+        with:
+          step: finish
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: ${{ job.status }}
+          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
 
