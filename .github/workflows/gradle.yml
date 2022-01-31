@@ -54,10 +54,10 @@ jobs:
 
     - uses: avakar/create-deployment@v1.0.2
       name: Create GitHub deployment
-      id: deployment
       with:
         ref: master
         auto_merge: false
+        required_contexts: false
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
