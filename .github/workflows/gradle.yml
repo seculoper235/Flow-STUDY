@@ -56,7 +56,7 @@ jobs:
       name: Create GitHub deployment
       id: deployment
       with:
-        auto-merge: false
+        auto_merge: false
         
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -79,14 +79,14 @@ jobs:
             --deployment-group-name Staging
             --s3-location "bucket"="secu-bucket","key"="SecuApp.zip","bundleType"="zip"
 
-    - name: Update deployment status (success)
+    - uses: avakar/create-deployment@v1.0.2
+      name: Update deployment status (success)
       if: success()
-      uses: avakar/create-deployment@v1.0.2
       with:
         state: success
 
-    - name: Update deployment status (failure)
+    - uses: avakar/create-deployment@v1.0.2
+      name: Update deployment status (failure)
       if: failure()
-      uses: avakar/create-deployment@v1.0.2
       with:
         state: failure
