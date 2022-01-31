@@ -73,8 +73,9 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_S3_SECRET_KEY }}
       run: |
         aws s3 cp ./SecuApp.zip s3://secu-bucket/ --region ap-northeast-2
-          
-    - name: Deploy # Deploy to EC2
+
+    # Deploy to EC2
+    - name: Deploy
       id: staging
       run: aws deploy create-deployment --application-name SecuProject_DEV
             --deployment-config-name CodeDeployDefault.AllAtOnce
