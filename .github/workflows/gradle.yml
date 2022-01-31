@@ -51,6 +51,15 @@ jobs:
     - name: zip create
       run: zip ./SecuApp.zip ./*
       shell: bash
+
+    - uses: actions/checkout@v1
+    - uses: chrnorm/deployment-action@releases/v1
+      name: Create GitHub deployment
+      id: deployment
+      with:
+        token: ${{ github.token }}
+        target_url: ec2-13-209-8-192.ap-northeast-2.compute.amazonaws.com
+        environment: master
         
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -67,7 +76,26 @@ jobs:
         aws s3 cp ./SecuApp.zip s3://secu-bucket/ --region ap-northeast-2
           
     - name: Deploy # Deploy to EC2
+      id: staging
       run: aws deploy create-deployment --application-name SecuProject_DEV
             --deployment-config-name CodeDeployDefault.AllAtOnce
             --deployment-group-name Staging
             --s3-location "bucket"="secu-bucket","key"="SecuApp.zip","bundleType"="zip"
+
+    - name: Update deployment status (success)
+      if: success()
+      uses: chrnorm/deployment-status@releases/v1
+      with:
+        token: ${{ github.token }}
+        target_url: ec2-13-209-8-192.ap-northeast-2.compute.amazonaws.com
+        state: "success"
+        deployment_id: ${{ steps.staging.outputs.deployment_id }}
+
+    - name: Update deployment status (failure)
+      if: failure()
+      uses: chrnorm/deployment-status@releases/v1
+      with:
+        token: ${{ github.token }}
+        target_url: ec2-13-209-8-192.ap-northeast-2.compute.amazonaws.com
+        state: "failure"
+        deployment_id: ${{ steps.staging.outputs.deployment_id }}
