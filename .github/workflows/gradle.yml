@@ -52,14 +52,13 @@ jobs:
       run: zip ./SecuApp.zip ./*
       shell: bash
 
-    - uses: avakar/create-deployment@v1.0.2
-      name: Create GitHub deployment
+    - name: start deployment
+      uses: bobheadxi/deployments@v0.6.2
+      id: deployment
       with:
-        ref: master
-        auto_merge: false
-        required_contexts: Build & Integration(Dev)
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        step: start
+        token: ${{ secrets.GITHUB_TOKEN }}
+        env: master
         
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -81,6 +80,15 @@ jobs:
             --deployment-config-name CodeDeployDefault.AllAtOnce
             --deployment-group-name Staging
             --s3-location "bucket"="secu-bucket","key"="SecuApp.zip","bundleType"="zip"
+
+    - name: update deployment status
+      uses: bobheadxi/deployments@v0.6.2
+      if: always()
+      with:
+        step: finish
+        token: ${{ secrets.GITHUB_TOKEN }}
+        status: ${{ job.status }}
+        deployment_id: ${{ steps.deployment.outputs.deployment_id }}
 
     - uses: avakar/set-deployment-status@v1
       name: Update deployment status (success)
