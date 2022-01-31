@@ -57,7 +57,7 @@ jobs:
       with:
         ref: master
         auto_merge: false
-        required_contexts: false
+        required_contexts: Build & Integration(Dev)
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
