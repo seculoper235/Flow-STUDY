@@ -52,14 +52,11 @@ jobs:
       run: zip ./SecuApp.zip ./*
       shell: bash
 
-    - uses: actions/checkout@v1
-    - uses: chrnorm/deployment-action@releases/v1
+    - uses: avakar/create-deployment@v1.0.2
       name: Create GitHub deployment
       id: deployment
       with:
-        token: ${{ github.token }}
-        target_url: ec2-13-209-8-192.ap-northeast-2.compute.amazonaws.com
-        environment: master
+        auto-merge: false
         
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -84,18 +81,12 @@ jobs:
 
     - name: Update deployment status (success)
       if: success()
-      uses: chrnorm/deployment-status@releases/v1
+      uses: avakar/create-deployment@v1.0.2
       with:
-        token: ${{ github.token }}
-        target_url: ec2-13-209-8-192.ap-northeast-2.compute.amazonaws.com
-        state: "success"
-        deployment_id: ${{ steps.staging.outputs.deployment_id }}
+        state: success
 
     - name: Update deployment status (failure)
       if: failure()
-      uses: chrnorm/deployment-status@releases/v1
+      uses: avakar/create-deployment@v1.0.2
       with:
-        token: ${{ github.token }}
-        target_url: ec2-13-209-8-192.ap-northeast-2.compute.amazonaws.com
-        state: "failure"
-        deployment_id: ${{ steps.staging.outputs.deployment_id }}
+        state: failure
