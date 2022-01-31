@@ -58,7 +58,7 @@ jobs:
       with:
         step: start
         token: ${{ secrets.GITHUB_TOKEN }}
-        env: master
+        env: Staging
         
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -89,19 +89,3 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         status: ${{ job.status }}
         deployment_id: ${{ steps.deployment.outputs.deployment_id }}
-
-    - uses: avakar/set-deployment-status@v1
-      name: Update deployment status (success)
-      if: success()
-      with:
-        state: success
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - uses: avakar/set-deployment-status@v1
-      name: Update deployment status (failure)
-      if: failure()
-      with:
-        state: failure
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
