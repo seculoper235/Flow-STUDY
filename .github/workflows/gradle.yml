@@ -90,12 +90,25 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
         status: ${{ job.status }}
         deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+        
+    - name: Check Deploy Status
+      id: staingcheck
+      run: aws deploy get-deployment --deployment-id ${{ steps.deployment.outputs.deployment_id }} --query "deploymentInfo.[status]" --output text
 
     - name: update deployment status
       uses: bobheadxi/deployments@v0.6.2
-      if: success()
+      if: ${{ steps.staingcheck.outputs.status }} == "Faild"
       with:
         step: finish
         token: ${{ secrets.GITHUB_TOKEN }}
-        status: ${{ job.status }}
+        status: Failure
+        deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+        
+    - name: update deployment status
+      uses: bobheadxi/deployments@v0.6.2
+      if: ${{ steps.staingcheck.outputs.status }} == "Succeeded"
+      with:
+        step: finish
+        token: ${{ secrets.GITHUB_TOKEN }}
+        status: Success
         deployment_id: ${{ steps.deployment.outputs.deployment_id }}
