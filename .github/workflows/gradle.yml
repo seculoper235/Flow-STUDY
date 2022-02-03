@@ -93,7 +93,7 @@ jobs:
         
     - name: Check Deploy Status
       id: staingcheck
-      run: aws deploy get-deployment --deployment-id ${{ steps.deployment.outputs.deployment_id }} --query "deploymentInfo.[status]" --output text
+      run: aws deploy get-deployment --deployment-id ${{ steps.staging.outputs.deploymentId }} --query "deploymentInfo.[status]" --output text
 
     - name: update deployment status
       uses: bobheadxi/deployments@v0.6.2
