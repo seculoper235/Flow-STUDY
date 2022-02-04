@@ -75,12 +75,16 @@ jobs:
         aws s3 cp ./SecuApp.zip s3://secu-bucket/ --region ap-northeast-2
 
     # Deploy to EC2
-    - name: Deploy
+    - name: AWS CodeDeploy
       id: staging
-      run: aws deploy create-deployment --application-name SecuProject_DEV
-            --deployment-config-name CodeDeployDefault.AllAtOnce
-            --deployment-group-name Staging
-            --s3-location "bucket"="secu-bucket","key"="SecuApp.zip","bundleType"="zip"
+      uses: sourcetoad/aws-codedeploy-action@v1
+      with:
+        codedeploy_name: SecuProject_DEV
+        codedeploy_group: Staging
+        codedeploy_register_only: true
+        s3_bucket: secu-bucket
+        s3_folder: Staging
+        archive: SecuApp.zip
 
     - name: update deployment status
       uses: bobheadxi/deployments@v0.6.2
