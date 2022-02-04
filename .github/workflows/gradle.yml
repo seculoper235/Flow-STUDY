@@ -20,16 +20,16 @@ jobs:
     if: ${{ github.event_name == 'pull_request' }}
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up JDK 17
-      uses: actions/setup-java@v2
-      with:
-        java-version: '17'
-        distribution: 'temurin'
+      - uses: actions/checkout@v2
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
+        with:
+          java-version: '17'
+          distribution: 'temurin'
 
-    - name: Build JAR
-      run: |
-        gradle jar
+      - name: Build JAR
+        run: |
+          gradle jar
 
   Deployment:
     name: Deployment(Dev)
@@ -37,82 +37,66 @@ jobs:
     if: ${{ github.event_name == 'push' }}
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up JDK 17
-      uses: actions/setup-java@v2
-      with:
-        java-version: '17'
-        distribution: 'temurin'
+      - uses: actions/checkout@v2
+      - name: Set up JDK 17
+        uses: actions/setup-java@v2
+        with:
+          java-version: '17'
+          distribution: 'temurin'
 
-    - name: Build
-      run: |
-        gradle build
-        
-    - name: zip create
-      run: zip ./SecuApp.zip ./*
-      shell: bash
+      - name: Build
+        run: |
+          gradle build
 
-    - name: start deployment
-      uses: bobheadxi/deployments@v0.6.2
-      id: deployment
-      with:
-        step: start
-        token: ${{ secrets.GITHUB_TOKEN }}
-        env: Staging
-        
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
-      with:
-        aws-access-key-id: ${{ secrets.AWS_S3_KEY }}
-        aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_KEY }}
-        aws-region: ${{ secrets.AWS_REGION }}
-    
-    - name: Upload S3
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_S3_KEY }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_S3_SECRET_KEY }}
-      run: |
-        aws s3 cp ./SecuApp.zip s3://secu-bucket/ --region ap-northeast-2
+      - name: zip create
+        run: zip ./SecuApp.zip ./*
+        shell: bash
 
-    # Deploy to EC2
-    - name: AWS CodeDeploy
-      id: staging
-      uses: sourcetoad/aws-codedeploy-action@v1
-      with:
-        codedeploy_name: SecuProject_DEV
-        codedeploy_group: Staging
-        codedeploy_register_only: true
-        s3_bucket: secu-bucket
-        s3_folder: Staging
-        archive: SecuApp.zip
+      - name: start deployment
+        uses: bobheadxi/deployments@v0.6.2
+        id: deployment
+        with:
+          step: start
+          token: ${{ secrets.GITHUB_TOKEN }}
+          env: Staging
 
-    - name: update deployment status
-      uses: bobheadxi/deployments@v0.6.2
-      if: failure()
-      with:
-        step: finish
-        token: ${{ secrets.GITHUB_TOKEN }}
-        status: ${{ job.status }}
-        deployment_id: ${{ steps.deployment.outputs.deployment_id }}
-        
-    - name: Check Deploy Status
-      id: staingcheck
-      run: aws deploy get-deployment --deployment-id ${{ steps.staging.outputs.deploymentId }} --query "deploymentInfo.[status]" --output text
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_S3_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-    - name: update deployment status
-      uses: bobheadxi/deployments@v0.6.2
-      if: ${{ steps.staingcheck.outputs.status }} == "Faild"
-      with:
-        step: finish
-        token: ${{ secrets.GITHUB_TOKEN }}
-        status: Failure
-        deployment_id: ${{ steps.deployment.outputs.deployment_id }}
-        
-    - name: update deployment status
-      uses: bobheadxi/deployments@v0.6.2
-      if: ${{ steps.staingcheck.outputs.status }} == "Succeeded"
-      with:
-        step: finish
-        token: ${{ secrets.GITHUB_TOKEN }}
-        status: Success
-        deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+      - name: Upload S3
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_S3_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_S3_SECRET_KEY }}
+        run: |
+          aws s3 cp ./SecuApp.zip s3://secu-bucket/ --region ap-northeast-2
+
+      # Deploy to EC2
+      - name: AWS CodeDeploy
+        id: staging
+        uses: webfactory/create-aws-codedeploy-deployment@v0.1.0
+
+      - name: Check Deploy Status
+        id: staingcheck
+        run: aws deploy get-deployment --deployment-id ${{ steps.staging.outputs.deploymentId }} --query "deploymentInfo.[status]" --output text
+
+      - name: Failure deployment action
+        uses: bobheadxi/deployments@v0.6.2
+        if: ${{ steps.staingcheck.outputs.status }} == "Faild"
+        with:
+          step: finish
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: Failure
+          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+
+      - name: Success deployment action
+        uses: bobheadxi/deployments@v0.6.2
+        if: ${{ steps.staingcheck.outputs.status }} == "Succeeded"
+        with:
+          step: finish
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: Success
+          deployment_id: ${{ steps.deployment.outputs.deployment_id }}

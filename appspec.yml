@@ -21,3 +21,21 @@ hooks:
     - location: deploy.sh
       timeout: 60
       runas: ec2-user
+
+branch_config:
+  master:
+    deploymentGroupName: Staging
+    deploymentGroupConfig:
+      serviceRoleArn: arn:aws:iam::337208975051:role/CodeDeployRole
+      ec2TagFilters:
+        - { Type: KEY_AND_VALUE, Key: Name, Value: WASserver }
+    deploymentConfig:
+      autoRollbackConfiguration:
+        enabled: true
+
+  release\/production:
+    deploymentGroupName: $BRANCH.staging.acme.tld
+    deploymentGroupConfig:
+      serviceRoleArn: arn:aws:iam::337208975051:role/CodeDeployRole
+      ec2TagFilters:
+        - { Type: KEY_AND_VALUE, Key: hostname, Value: phobos.stage }
