@@ -83,7 +83,7 @@ jobs:
 
       - name: Failure deployment action
         uses: bobheadxi/deployments@v0.6.2
-        if: steps.staging.outputs.deploymentGroupCreated == false
+        if: ${{ steps.staging.outputs.deploymentId }} == null
         with:
           step: finish
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -92,7 +92,7 @@ jobs:
 
       - name: Success deployment action
         uses: bobheadxi/deployments@v0.6.2
-        if: steps.staging.outputs.deploymentGroupCreated == true
+        if: ${{ steps.staging.outputs.deploymentGroupCreated }} == false || ${{ steps.staging.outputs.deploymentGroupCreated }} == true
         with:
           step: finish
           token: ${{ secrets.GITHUB_TOKEN }}
