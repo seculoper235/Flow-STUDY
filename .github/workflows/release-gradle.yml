@@ -63,19 +63,17 @@ jobs:
           aws s3 cp ./SecuApp.zip s3://secu-prodbucket/ --region ap-northeast-2
 
       # Deploy to EC2
-      - name: Deploy(Production)
-        id: Production
-        run: aws deploy create-deployment --application-name SecuProject_PROD
-          --deployment-config-name CodeDeployDefault.AllAtOnce
-          --deployment-group-name Production
-          --s3-location "bucket"="secu-prodbucket","key"="SecuApp.zip","bundleType"="zip"
+      - name: AWS CodeDeploy
+        id: production
+        uses: webfactory/create-aws-codedeploy-deployment@v0.1.0
+        with:
+          application: SecuProject_PROD
 
-      - name: update deployment status
+      - name: Success deployment action
         uses: bobheadxi/deployments@v0.6.2
-        if: always()
+        if: ${{ steps.staingcheck.outputs.status }} == "Succeeded"
         with:
           step: finish
           token: ${{ secrets.GITHUB_TOKEN }}
-          status: ${{ job.status }}
+          status: Success
           deployment_id: ${{ steps.deployment.outputs.deployment_id }}
-

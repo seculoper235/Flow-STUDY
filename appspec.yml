@@ -34,8 +34,8 @@ branch_config:
         enabled: false
 
   release\/production:
-    deploymentGroupName: $BRANCH.staging.acme.tld
+    deploymentGroupName: Production
     deploymentGroupConfig:
       serviceRoleArn: arn:aws:iam::337208975051:role/CodeDeployRole
       ec2TagFilters:
-        - { Type: KEY_AND_VALUE, Key: hostname, Value: phobos.stage }
+        - { Type: KEY_AND_VALUE, Key: Name, Value: ProdServer }
