@@ -1,6 +1,6 @@
 version: 0.0
 os: linux
-# destination에 아티팩트가 unzip된 결과가 생성될 디렉토리명을 넣어준다.
+# destination에 아티팩트가 unzip된 결과가 생성될 디렉토리명을 넣어준다
 files:
   - source:  /
     destination: /home/ec2-user/build/
