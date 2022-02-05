@@ -61,9 +61,18 @@ jobs:
         with:
           application: SecuProject_PROD
 
+      - name: Failure deployment action
+        uses: bobheadxi/deployments@v0.6.2
+        if: failure()
+        with:
+          step: finish
+          token: ${{ secrets.GITHUB_TOKEN }}
+          status: Failure
+          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+
       - name: Success deployment action
         uses: bobheadxi/deployments@v0.6.2
-        if: ${{ steps.staingcheck.outputs.status }} == "Succeeded"
+        if: success()
         with:
           step: finish
           token: ${{ secrets.GITHUB_TOKEN }}
