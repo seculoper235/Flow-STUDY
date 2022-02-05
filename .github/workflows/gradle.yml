@@ -81,13 +81,9 @@ jobs:
         with:
           application: SecuProject_DEV
 
-      - name: Check Deploy Status
-        id: staingcheck
-        run: aws deploy get-deployment --deployment-id ${{ steps.staging.outputs.deploymentId }} --query "deploymentInfo.[status]" --output text
-
       - name: Failure deployment action
         uses: bobheadxi/deployments@v0.6.2
-        if: ${{ steps.staingcheck.outputs.status }} == "Faild"
+        if: steps.staging.outputs.deploymentGroupCreated == false
         with:
           step: finish
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -96,7 +92,7 @@ jobs:
 
       - name: Success deployment action
         uses: bobheadxi/deployments@v0.6.2
-        if: ${{ steps.staingcheck.outputs.status }} == "Succeeded"
+        if: steps.staging.outputs.deploymentGroupCreated == true
         with:
           step: finish
           token: ${{ secrets.GITHUB_TOKEN }}
