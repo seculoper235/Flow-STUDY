@@ -78,6 +78,8 @@ jobs:
       - name: AWS CodeDeploy
         id: staging
         uses: webfactory/create-aws-codedeploy-deployment@v0.1.0
+        with:
+          application: SecuProject_DEV
 
       - name: Check Deploy Status
         id: staingcheck
