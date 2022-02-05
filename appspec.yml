@@ -31,7 +31,7 @@ branch_config:
         - { Type: KEY_AND_VALUE, Key: Name, Value: WASserver }
     deploymentConfig:
       autoRollbackConfiguration:
-        enabled: true
+        enabled: false
 
   release\/production:
     deploymentGroupName: $BRANCH.staging.acme.tld
