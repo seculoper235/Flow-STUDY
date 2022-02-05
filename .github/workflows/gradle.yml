@@ -83,7 +83,6 @@ jobs:
 
       - name: Failure deployment action
         uses: bobheadxi/deployments@v0.6.2
-        if: ${{ steps.staging.outputs.deploymentId }} == null
         with:
           step: finish
           token: ${{ secrets.GITHUB_TOKEN }}
